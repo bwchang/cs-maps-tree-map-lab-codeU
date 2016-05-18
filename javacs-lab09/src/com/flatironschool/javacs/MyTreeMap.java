@@ -70,9 +70,19 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 		// something to make the compiler happy
 		@SuppressWarnings("unchecked")
 		Comparable<? super K> k = (Comparable<? super K>) target;
-		
+
 		// the actual search
-        // TODO: Fill this in.
+        Node node = root;
+        while (node != null) {
+			int cmp = k.compareTo(node.key);
+			if (cmp < 0) {
+				node = node.left;
+			} else if (cmp > 0) {
+				node = node.right;
+			} else {
+				return node;
+			}
+        }
         return null;
 	}
 
@@ -92,6 +102,20 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 
 	@Override
 	public boolean containsValue(Object target) {
+		Node node = root;
+		while (node != null) {
+			if (target.equals(node.value)) {
+				return true;
+			}
+			node = node.left;
+		}
+		node = root;
+		while (node != null) {
+			if (target.equals(node.value)) {
+				return true;
+			}
+			node = node.right;
+		}
 		return false;
 	}
 
@@ -117,8 +141,17 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 	@Override
 	public Set<K> keySet() {
 		Set<K> set = new LinkedHashSet<K>();
-        // TODO: Fill this in.
+		addNodes(set, root);
 		return set;
+	}
+
+	private void addNodes(Set<K> set, Node node) {
+		if (node == null) {
+			return;
+		}
+		addNodes(set, node.left);
+        set.add(node.key);
+        addNodes(set, node.right);
 	}
 
 	@Override
@@ -135,7 +168,29 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 	}
 
 	private V putHelper(Node node, K key, V value) {
-        // TODO: Fill this in.
+		Comparable<? super K> k = (Comparable<? super K>) key;
+        int cmp = k.compareTo(node.key);
+        if (cmp < 0) {
+        	if (node.left == null) {
+        		Node newNode = new Node(key, value);
+        		node.left = newNode;
+        		size++;
+        	} else {
+        		putHelper(node.left, key, value);
+        	}
+        } else if (cmp > 0) {
+        	if (node.right == null) {
+        		Node newNode = new Node(key, value);
+        		node.right = newNode;
+        		size++;
+        	} else {
+        		putHelper(node.right, key, value);
+        	}
+        } else {
+        	V prev = node.value;
+        	node.value = value;
+        	return prev;
+        }
         return null;
 	}
 
